@@ -6,7 +6,7 @@ from app.models import Category, Item
 category_app = Blueprint('category_app', __name__,
                          template_folder='templates')
 
-
+# index page
 @category_app.route('/')
 def index():
     categories = db.session.query(Category)
@@ -16,6 +16,7 @@ def index():
     return render_template('index.html', categories=categories, logged_in=logged_in, items=items)
 
 
+# page for a category
 @category_app.route('/catalog/<string:catagory_slug>/items')
 def category(catagory_slug):
     logged_in = login_session.get('access_token') is not None
@@ -26,6 +27,7 @@ def category(catagory_slug):
     return render_template('category.html', categories=categories, items=items, logged_in=logged_in, category=category)
 
 
+# get all information about categories and items
 @category_app.route('/catalog.json')
 def catalog_json():
     categories = db.session.query(Category)

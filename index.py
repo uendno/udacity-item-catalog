@@ -18,4 +18,4 @@ if __name__ == '__main__':
                 if path.isfile(filename):
                     extra_files.append(filename)
 
-    app.run(host='0.0.0.0', port=5000, extra_files=extra_files)
+    app.run(host='0.0.0.0', port=app.config['PORT'], extra_files=extra_files)

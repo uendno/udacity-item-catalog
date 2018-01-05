@@ -1,4 +1,3 @@
-
 from flask_script import Manager, Shell, Server
 
 from app import app, db
@@ -8,12 +7,14 @@ from slugify import slugify
 manager = Manager(app)
 
 
+# initialize database
 @manager.command
 def initdb():
     print("212312312")
     db.create_all()
 
 
+# seed categories
 @manager.command
 def seed_categories():
     categories_names = ['Soccer', 'Basketball', 'Baseball', 'Frisbee', 'Snowboarding', 'Rock Climbing', 'Foosball',
@@ -22,6 +23,6 @@ def seed_categories():
     db.session.bulk_save_objects(categories)
     db.session.commit()
 
+
 if __name__ == '__main__':
     manager.run()
-

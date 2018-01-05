@@ -7,6 +7,7 @@ item_app = Blueprint('item_app', __name__,
                      template_folder='templates')
 
 
+# show an item
 @item_app.route('/catalog/<string:category_slug>/<string:item_slug>')
 def item(category_slug, item_slug):
     logged_in = login_session.get('access_token') is not None
@@ -19,6 +20,7 @@ def item(category_slug, item_slug):
         return render_template('404.html', logged_in=logged_in)
 
 
+# show editing page for an item
 @item_app.route('/catalog/<string:category_slug>/<string:item_slug>/edit', methods=['GET'])
 def showEditItem(category_slug, item_slug):
     logged_in = login_session.get('access_token') is not None
@@ -36,6 +38,7 @@ def showEditItem(category_slug, item_slug):
         return render_template('404.html', logged_in=logged_in)
 
 
+# show item adding page
 @item_app.route('/add', methods=['GET'])
 def showAdd():
     logged_in = login_session.get('access_token') is not None
@@ -47,6 +50,7 @@ def showAdd():
     return render_template('edit.html', categories=categories, logged_in=logged_in, item=None)
 
 
+# handle post request for adding an item
 @item_app.route('/add', methods=['POST'])
 def add():
     logged_in = login_session.get('access_token') is not None
@@ -70,6 +74,7 @@ def add():
     return redirect('/')
 
 
+# handle post request for updating an item
 @item_app.route('/catalog/<string:category_slug>/<string:item_slug>/edit', methods=['POST'])
 def update(category_slug, item_slug):
     logged_in = login_session.get('access_token') is not None
@@ -97,6 +102,7 @@ def update(category_slug, item_slug):
         return render_template('404.html', logged_in=logged_in)
 
 
+# show item-deleting page
 @item_app.route('/catalog/<string:category_slug>/<string:item_slug>/delete', methods=['GET'])
 def showDeleteItem(category_slug, item_slug):
     logged_in = login_session.get('access_token') is not None
@@ -113,6 +119,7 @@ def showDeleteItem(category_slug, item_slug):
         return render_template('404.html', logged_in=logged_in)
 
 
+# handle post request for deleting an item
 @item_app.route('/catalog/<string:category_slug>/<string:item_slug>/delete', methods=['POST'])
 def delete(category_slug, item_slug):
     logged_in = login_session.get('access_token') is not None

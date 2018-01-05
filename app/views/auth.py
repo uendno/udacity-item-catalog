@@ -16,6 +16,7 @@ CLIENT_SECRET_FILE = 'app/client_secret.json'
 CLIENT_ID = json.loads(open(CLIENT_SECRET_FILE, 'r').read())['web']['client_id']
 
 
+# show login page
 @auth_app.route('/login')
 def showLogin():
     state = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(32))
@@ -23,6 +24,7 @@ def showLogin():
     return render_template('login.html', STATE=state)
 
 
+# login with google
 @auth_app.route('/gconnect', methods=['POST'])
 def gconnect():
     if request.args.get('state') != login_session['state']:
@@ -118,6 +120,7 @@ def gconnect():
     return response
 
 
+# logout (disconnect from google if needed)
 @auth_app.route('/gdisconnect')
 def gdisconnect():
     # Only disconnect a connected user
