@@ -1,0 +1,73 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="content-wrapper">
+    <div class="content-inner">
+        <div class="edit-item-wrapper">
+
+            <h1 class="big-title">Edit Item</h1>
+            <br>
+
+            {% if item is not none %}
+            <form id="item-form" action="/catalog/{{item.category.slug}}/{{item.slug}}/edit" method="post">
+                Title
+                <br>
+                <input type="text" name="title" value="{{item.name}}"/>
+                <br>
+                <br>
+
+                Description
+                <br>
+                <input type="text" name="description" value="{{item.description}}"/>
+                <br>
+                <br>
+
+                Category
+                <br>
+                <select name="category_id" form="item-form">
+                    {% for category in categories %}
+                    {% if item.category.id == category.id%}
+                    <option value="{{ category.id }}" selected="selected">{{category.name}}</option>
+                    {% else %}
+                    <option value="{{ category.id }}">{{category.name}}</option>
+                    {% endif %}
+
+                    {% endfor %}
+                </select>
+                <br>
+                <br>
+                <button role="button">Submit</button>
+            </form>
+            {% else %}
+            <form id="item-form" action="/add" method="post">
+                Title
+                <br>
+                <input type="text" name="title"/>
+                <br>
+                <br>
+
+                Description
+                <br>
+                <input type="text" name="description"/>
+                <br>
+                <br>
+
+                Category
+                <br>
+                <select name="category_id" form="item-form">
+                    {% for category in categories %}
+                    <option value="{{ category.id }}">{{category.name}}</option>
+                    {% endfor %}
+
+                </select>
+                <br>
+                <br>
+                <button role="button">Submit</button>
+            </form>
+            {% endif %}
+
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}

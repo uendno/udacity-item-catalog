@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="content-wrapper">
+    <div class="content-inner">
+        <div class="single-item-wrapper">
+            <h1 class="big-title">{{ item.name}} </h1>
+            <p> {{ item.description }}</p>
+            {% if logged_in == True and user_id == item.user_id %}
+            <a href="/catalog/{{item.category.slug}}/{{item.slug}}/edit">Edit</a> | <a href="/catalog/{{item.category.slug}}/{{item.slug}}/delete">Delete</a>
+            {% endif %}
+        </div>
+    </div>
+
+
+</div>
+{% endblock %}

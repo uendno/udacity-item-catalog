@@ -1,0 +1,11 @@
+flask
+Flask-Scss
+sqlalchemy
+flask_sqlalchemy
+flask_script
+flask_assets
+jsmin
+pyscss
+python-slugify
+oauth2client
+requests

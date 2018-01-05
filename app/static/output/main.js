@@ -1,0 +1,1 @@
+function logout(){$.ajax({type:'POST',url:'/gdisconnect',success:function(result){console.log(result)}})}
