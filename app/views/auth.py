@@ -18,7 +18,7 @@ CLIENT_ID = json.loads(open(CLIENT_SECRET_FILE, 'r').read())['web']['client_id']
 
 # show login page
 @auth_app.route('/login')
-def showLogin():
+def show_login():
     state = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(32))
     login_session['state'] = state
     return render_template('login.html', STATE=state)
@@ -26,7 +26,7 @@ def showLogin():
 
 # login with google
 @auth_app.route('/gconnect', methods=['POST'])
-def gconnect():
+def g_connect():
     if request.args.get('state') != login_session['state']:
         response = make_response(json.dumps('Invalid state parameter'), 401)
         response.headers['Content-Type'] = 'application/json'
@@ -37,7 +37,7 @@ def gconnect():
     try:
         # Upgrade the authorization code into a credentials object
         oauth_flow = flow_from_clientsecrets(CLIENT_SECRET_FILE, scope='')
-        oauth_flow.redirect_uri = 'postmessage'
+        oauth_flow.redirect_uri = 'http://localhost:5000'
         credentials = oauth_flow.step2_exchange(code)
     except FlowExchangeError:
         response = make_response(json.dumps('Failed to upgrade the authorization code.'), 401)
@@ -122,7 +122,7 @@ def gconnect():
 
 # logout (disconnect from google if needed)
 @auth_app.route('/gdisconnect')
-def gdisconnect():
+def g_disconnect():
     # Only disconnect a connected user
     print(login_session)
     access_token = login_session.get('access_token')

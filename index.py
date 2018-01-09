@@ -1,6 +1,5 @@
 import os
 from os import path, environ
-from os import environ
 
 from app import app
 

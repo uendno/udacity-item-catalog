@@ -10,7 +10,6 @@ manager = Manager(app)
 # initialize database
 @manager.command
 def initdb():
-    print("212312312")
     db.create_all()
 
 

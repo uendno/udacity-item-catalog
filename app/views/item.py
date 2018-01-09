@@ -7,40 +7,9 @@ item_app = Blueprint('item_app', __name__,
                      template_folder='templates')
 
 
-# show an item
-@item_app.route('/catalog/<string:category_slug>/<string:item_slug>')
-def item(category_slug, item_slug):
-    logged_in = login_session.get('access_token') is not None
-    items = Item.find_by_slug_and_category_slug(item_slug, category_slug)
-
-    if len(items) > 0:
-        user_id = login_session.get('id')
-        return render_template('item.html', logged_in=logged_in, item=items[0][0], user_id=user_id)
-    else:
-        return render_template('404.html', logged_in=logged_in)
-
-
-# show editing page for an item
-@item_app.route('/catalog/<string:category_slug>/<string:item_slug>/edit', methods=['GET'])
-def showEditItem(category_slug, item_slug):
-    logged_in = login_session.get('access_token') is not None
-
-    if not logged_in:
-        return redirect('/login')
-
-    items = Item.find_by_slug_and_category_slug_and_user_id(item_slug, category_slug, login_session.get(
-        'id'))
-
-    categories = db.session.query(Category)
-    if len(items) > 0:
-        return render_template('edit.html', item=items[0][0], logged_in=logged_in, categories=categories)
-    else:
-        return render_template('404.html', logged_in=logged_in)
-
-
 # show item adding page
 @item_app.route('/add', methods=['GET'])
-def showAdd():
+def show_add():
     logged_in = login_session.get('access_token') is not None
 
     if not logged_in:
@@ -62,76 +31,128 @@ def add():
     description = request.form['description']
     category_id = request.form['category_id']
 
-    new_item = Item(name=name, description=description, category_id=category_id, slug=slugify(name),
-                    user_id=login_session.get('id'))
-    try:
-        db.session.add(item)
-        db.session.commit()
-        return redirect('/')
-    except:
-        return "Invalid item name"
+    category = Category.find_by_id(category_id)
 
+    if category is None:
+        return "Invalid category Id"
+
+    slug = slugify(name)
+
+    if not Item.validate_slug(slug):
+        return "Name is already taken"
+
+    new_item = Item(name=name, description=description, category_id=category_id, slug=slug,
+                    user_id=login_session.get('id'))
+
+    db.session.add(new_item)
+    db.session.commit()
     return redirect('/')
 
 
-# handle post request for updating an item
-@item_app.route('/catalog/<string:category_slug>/<string:item_slug>/edit', methods=['POST'])
-def update(category_slug, item_slug):
+# show an item
+@item_app.route('/catalog/<string:category_slug>/<string:item_slug>/<int:item_id>')
+def show_item(category_slug, item_slug, item_id):
+    # category_slug and item_slug is redundant
+
+    logged_in = login_session.get('access_token') is not None
+
+    item = Item.find_by_id(item_id)
+
+    if item is not None:
+        user_id = login_session.get('id')
+        return render_template('item.html', logged_in=logged_in, item=item, user_id=user_id)
+    else:
+        return render_template('404.html', logged_in=logged_in)
+
+
+# show editing page for an item
+@item_app.route('/catalog/<string:category_slug>/<string:item_slug>/<int:item_id>/edit', methods=['GET'])
+def show_edit_item(category_slug, item_slug, item_id):
+    # category_slug and item_slug is redundant
+
     logged_in = login_session.get('access_token') is not None
 
     if not logged_in:
         return redirect('/login')
 
-    items = Item.find_by_slug_and_category_slug_and_user_id(item_slug, category_slug, login_session.get(
-        'id'))
+    item = Item.find_by_id_and_user_id(item_id, login_session.get('id'))
 
-    if len(items) > 0:
-        item = items[0][0]
+    categories = db.session.query(Category)
+    if item is not None:
+        return render_template('edit.html', item=item, logged_in=logged_in, categories=categories)
+    else:
+        return render_template('404.html', logged_in=logged_in)
+
+
+# handle post request for updating an item
+@item_app.route('/catalog/<string:category_slug>/<string:item_slug>/<int:item_id>/edit', methods=['POST'])
+def update(category_slug, item_slug, item_id):
+    # category_slug and item_slug is redundant
+
+    logged_in = login_session.get('access_token') is not None
+
+    if not logged_in:
+        return redirect('/login')
+
+    item = Item.find_by_id_and_user_id(item_id, login_session.get('id'))
+
+    if item is not None:
+
+        valid = Item.validate_slug(slugify(request.form['title']), item.id)
+
+        if not valid:
+            return "Name is already taken"
+
         item.name = request.form['title']
         item.description = request.form['description']
         item.category_id = request.form['category_id']
+        item.slug = slugify(item.name)
 
-        try:
-            db.session.add(item)
-            db.session.commit()
-            return redirect('/')
-        except:
-            return "Invalid item name"
+        category = Category.find_by_id(item.category_id)
+
+        if category is None:
+            return "Invalid category Id"
+
+        db.session.add(item)
+        db.session.commit()
+        return redirect('/')
 
     else:
         return render_template('404.html', logged_in=logged_in)
 
 
 # show item-deleting page
-@item_app.route('/catalog/<string:category_slug>/<string:item_slug>/delete', methods=['GET'])
-def showDeleteItem(category_slug, item_slug):
+@item_app.route('/catalog/<string:category_slug>/<string:item_slug>/<int:item_id>/delete', methods=['GET'])
+def show_delete_item(category_slug, item_slug, item_id):
+    # category_slug and item_slug is redundant
+
     logged_in = login_session.get('access_token') is not None
 
     if not logged_in:
         return redirect('/login')
 
-    items = Item.find_by_slug_and_category_slug_and_user_id(item_slug, category_slug, login_session.get(
-        'id'))
+    item = Item.find_by_id_and_user_id(item_id, login_session.get('id'))
 
-    if len(items) > 0:
-        return render_template('delete.html', item=items[0][0], logged_in=logged_in)
+    if item is not None:
+        return render_template('delete.html', item=item, logged_in=logged_in)
     else:
         return render_template('404.html', logged_in=logged_in)
 
 
 # handle post request for deleting an item
-@item_app.route('/catalog/<string:category_slug>/<string:item_slug>/delete', methods=['POST'])
-def delete(category_slug, item_slug):
+@item_app.route('/catalog/<string:category_slug>/<string:item_slug>/<int:item_id>/delete', methods=['POST'])
+def delete(category_slug, item_slug, item_id):
+    # category_slug and item_slug is redundant
+
     logged_in = login_session.get('access_token') is not None
 
     if not logged_in:
         return redirect('/login')
 
-    items = Item.find_by_slug_and_category_slug_and_user_id(item_slug, category_slug, login_session.get(
-        'id'))
+    item = Item.find_by_id_and_user_id(item_id, login_session.get('id'))
 
-    if len(items) > 0:
-        db.session.delete(items[0][0])
+    if item is not None:
+        db.session.delete(item)
         db.session.commit()
         return redirect('/')
     else:

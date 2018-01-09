@@ -6,6 +6,7 @@ from app.models import Category, Item
 category_app = Blueprint('category_app', __name__,
                          template_folder='templates')
 
+
 # index page
 @category_app.route('/')
 def index():

@@ -6,7 +6,7 @@
             <h1 class="big-title">{{ item.name}} </h1>
             <p> {{ item.description }}</p>
             {% if logged_in == True and user_id == item.user_id %}
-            <a href="/catalog/{{item.category.slug}}/{{item.slug}}/edit">Edit</a> | <a href="/catalog/{{item.category.slug}}/{{item.slug}}/delete">Delete</a>
+            <a href="/catalog/{{item.category.slug}}/{{item.slug}}/{{item.id}}/edit">Edit</a> | <a href="/catalog/{{item.category.slug}}/{{item.slug}}/{{item.id}}/delete">Delete</a>
             {% endif %}
         </div>
     </div>

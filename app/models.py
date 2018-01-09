@@ -10,6 +10,15 @@ class Category(db.Model):
     created_date = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     slug = db.Column(db.String(80), unique=True)
 
+    @staticmethod
+    def find_by_id(category_id):
+        results = db.session.query(Category).filter_by(id=category_id).all()
+
+        if len(results) > 0:
+            return results[0]
+        else:
+            return None
+
 
 class User(db.Model):
     __tablename__ = 'user'
@@ -50,6 +59,35 @@ class Item(db.Model):
             .filter_by(slug=item_slug,
                        user_id=user_id) \
             .all()
+
+    @staticmethod
+    def find_by_id(item_id):
+        results = db.session.query(Item).filter_by(id=item_id).all()
+
+        if len(results) > 0:
+            return results[0]
+        else:
+            return None
+
+    @staticmethod
+    def find_by_id_and_user_id(item_id, user_id):
+        results = db.session.query(Item).filter_by(id=item_id, user_id=user_id).all()
+
+        if len(results) > 0:
+            return results[0]
+        else:
+            return None
+
+    @staticmethod
+    def validate_slug(slug, current_item_id=None):
+        results = db.session.query(Item) \
+            .filter(Item.id != current_item_id) \
+            .filter_by(slug=slug).all()
+
+        if len(results) > 0:
+            return False
+        else:
+            return True
 
 
 class GoogleProvider(db.Model):

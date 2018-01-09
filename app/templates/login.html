@@ -1,29 +1,27 @@
 {% extends "layout.html" %}
 {% block vendor_scripts %}
 {{ super() }}
-<script src="//apis.google.com/js/platform.js?onload=start"></script>
 {% endblock %}
 {% block content %}
 <div class="login-wrapper">
     <div class="login-inner">
         <h5>Login with Google</h5>
-        <div id="signinButton">
-          <span class="g-signin"
-                data-scope="openid email"
-                data-clientid="384833506007-cuilc58smbb9vc12sohems8tqcbjo93a.apps.googleusercontent.com"
-                data-redirecturi="postmessage"
-                data-accesstype="offline"
-                data-cookiepolicy="single_host_origin"
-                data-callback="signInCallback"
-                data-approvalprompt="force">
-          </span>
-        </div>
+        <button id="signinButton">Sign in with Google</button>
         <p id="wait" hidden>Please wait...</p>
     </div>
 </div>
-
 <script>
+
+    function start() {
+        gapi.load('auth2', function () {
+            auth2 = gapi.auth2.init({
+                client_id: '384833506007-cuilc58smbb9vc12sohems8tqcbjo93a.apps.googleusercontent.com'
+            })
+        })
+    }
+
     function signInCallback(authResult) {
+
         if (authResult['code']) {
             $('#signinButton').css('display', 'none');
             $('#wait').show();
@@ -46,5 +44,13 @@
         }
     }
 
+    $('#signinButton').click(function () {
+        // signInCallback defined in step 6.
+        auth2.grantOfflineAccess().then(signInCallback);
+    });
+
 </script>
+
+
+<script src="https://apis.google.com/js/client:platform.js?onload=start"></script>
 {% endblock %}
