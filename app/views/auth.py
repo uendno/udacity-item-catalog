@@ -44,43 +44,7 @@ def g_connect():
         response.headers['Content-Type'] = 'application/json'
         return response
 
-    access_token = credentials.access_token
-    # Check that the access token is valid
-    url = ('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=%s' % access_token)
-    h = httplib2.Http()
-    result = json.loads(h.request(url, 'GET')[1])
-
-    # If there was an error in the access token info, abort
-    if result.get('error') is not None:
-        response = make_response(json.dumps(result.get('error')), 500)
-        response.headers['Content-Type'] = 'application/json'
-        return response
-
     gplus_id = credentials.id_token['sub']
-
-    # Verify that the access token is used for the intended user.
-    if result['user_id'] != gplus_id:
-        response = make_response(json.dumps("Token's user ID doesn't match given user ID."), 401)
-        response.headers['Content-Type'] = 'application/json'
-        return response
-
-    # Verify that the access token is valid for this app.
-    if result['issued_to'] != CLIENT_ID:
-        response = make_response(json.dumps('Token\'s client ID does not match app\'s'), 401)
-        print('Token \'s client ID doese not match app\'s.')
-        response.headers['Content-Type'] = 'application/json'
-        return response
-
-    # Check to see if user is already logged in
-    stored_access_token = login_session.get('access_token')
-    stored_gplus_id = login_session.get('gplus_id')
-    if stored_access_token is not None and gplus_id == stored_gplus_id:
-        response = make_response(json.dumps('Current user is already connected.'), 200)
-        response.headers['Content-Type'] = 'application/json'
-        return response
-
-    # Store the access token in the session for later use.
-    login_session['access_token'] = credentials.access_token
     login_session['gplus_id'] = gplus_id
 
     # Get user info
@@ -98,9 +62,9 @@ def g_connect():
         db.session.add(provider_infos[0])
         db.session.commit()
 
-        login_session['username'] = user.username
         login_session['id'] = user.id
         login_session['type'] = user.providerType
+
     else:
 
         # create user and provider_info
@@ -111,7 +75,6 @@ def g_connect():
         db.session.add(new_user)
         db.session.commit()
 
-        login_session['username'] = new_user.username
         login_session['id'] = new_user.id
         login_session['type'] = new_user.providerType
 
@@ -138,11 +101,7 @@ def g_disconnect():
 
     # Reset the user's session
     try:
-        del login_session['access_token']
         del login_session['gplus_id']
-        del login_session['username']
-        del login_session['email']
-        del login_session['picture']
         del login_session['id']
         del login_session['type']
     except KeyError:

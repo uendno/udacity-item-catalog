@@ -10,7 +10,7 @@ item_app = Blueprint('item_app', __name__,
 # show item adding page
 @item_app.route('/add', methods=['GET'])
 def show_add():
-    logged_in = login_session.get('access_token') is not None
+    logged_in = login_session.get('id') is not None
 
     if not logged_in:
         return redirect('/login')
@@ -22,7 +22,7 @@ def show_add():
 # handle post request for adding an item
 @item_app.route('/add', methods=['POST'])
 def add():
-    logged_in = login_session.get('access_token') is not None
+    logged_in = login_session.get('id') is not None
 
     if not logged_in:
         return redirect('/login')
@@ -54,7 +54,7 @@ def add():
 def show_item(category_slug, item_slug, item_id):
     # category_slug and item_slug is redundant
 
-    logged_in = login_session.get('access_token') is not None
+    logged_in = login_session.get('id') is not None
 
     item = Item.find_by_id(item_id)
 
@@ -70,7 +70,7 @@ def show_item(category_slug, item_slug, item_id):
 def show_edit_item(category_slug, item_slug, item_id):
     # category_slug and item_slug is redundant
 
-    logged_in = login_session.get('access_token') is not None
+    logged_in = login_session.get('id') is not None
 
     if not logged_in:
         return redirect('/login')
@@ -89,7 +89,7 @@ def show_edit_item(category_slug, item_slug, item_id):
 def update(category_slug, item_slug, item_id):
     # category_slug and item_slug is redundant
 
-    logged_in = login_session.get('access_token') is not None
+    logged_in = login_session.get('id') is not None
 
     if not logged_in:
         return redirect('/login')
@@ -126,7 +126,7 @@ def update(category_slug, item_slug, item_id):
 def show_delete_item(category_slug, item_slug, item_id):
     # category_slug and item_slug is redundant
 
-    logged_in = login_session.get('access_token') is not None
+    logged_in = login_session.get('id') is not None
 
     if not logged_in:
         return redirect('/login')
@@ -144,7 +144,7 @@ def show_delete_item(category_slug, item_slug, item_id):
 def delete(category_slug, item_slug, item_id):
     # category_slug and item_slug is redundant
 
-    logged_in = login_session.get('access_token') is not None
+    logged_in = login_session.get('id') is not None
 
     if not logged_in:
         return redirect('/login')

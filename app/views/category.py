@@ -11,7 +11,7 @@ category_app = Blueprint('category_app', __name__,
 @category_app.route('/')
 def index():
     categories = db.session.query(Category)
-    logged_in = login_session.get('access_token') is not None
+    logged_in = login_session.get('id') is not None
     items = db.session.query(Item).order_by(Item.created_date.desc()).limit(10).all()
 
     return render_template('index.html', categories=categories, logged_in=logged_in, items=items)
@@ -20,7 +20,7 @@ def index():
 # page for a category
 @category_app.route('/catalog/<string:catagory_slug>/items')
 def category(catagory_slug):
-    logged_in = login_session.get('access_token') is not None
+    logged_in = login_session.get('id') is not None
     categories = db.session.query(Category)
     category = db.session.query(Category).filter_by(slug=catagory_slug).one()
     items = db.session.query(Item).filter_by(category_id=category.id).all()

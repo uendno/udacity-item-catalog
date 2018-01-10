@@ -22,6 +22,8 @@
 
     function signInCallback(authResult) {
 
+        debugger;
+
         if (authResult['code']) {
             $('#signinButton').css('display', 'none');
             $('#wait').show();
@@ -46,7 +48,7 @@
 
     $('#signinButton').click(function () {
         // signInCallback defined in step 6.
-        auth2.grantOfflineAccess().then(signInCallback);
+        auth2.signIn().then(signInCallback);
     });
 
 </script>
