@@ -9,3 +9,6 @@ pyscss
 python-slugify
 oauth2client
 requests
+pyjwt
+flask_cors
+jsonschema
