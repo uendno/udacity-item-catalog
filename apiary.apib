@@ -112,3 +112,108 @@ HOST: http://localhost:5000/api
         }
         
 ### Add an item [POST /items]
+
++ Request  (application/json)
+    + Headers
+    
+            Authorization: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJncGx1c19pZCI6IjEwMTI2NDE4NzUwNDUzNzczODg5MCIsImlkIjoxLCJ0eXBlIjoiZ29vZ2xlIn0.86xF-1BR6iKhhXLRJjkMp02yzC5mOCX9U8pNDrj2DoU
+        
+    + Body
+        
+            {
+                "name": "item 5",
+                "description": "item 5 desc",
+                "categoryId": 1
+            }
+    
+            
++ Response 401 (application/json)
+
+        {
+            "success": false,
+            "message": "Access token is required"
+        }
++ Response 200 (application/json)
+
+        {
+            "data": {
+                "category": {
+                  "id": 1, 
+                  "name": "Soccer", 
+                  "slug": "soccer"
+                }, 
+                "description": "item 5 desc", 
+                "id": 4, 
+                "name": "item 5", 
+                "slug": "item-5", 
+                "userId": 1
+            }, 
+            "success": true
+        }
+
+### Update an item [PUT /items/{id}]
+
++ Parameters
+    + id (number) - Id of a item
+
++ Request  (application/json)
+    + Headers
+    
+            Authorization: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJncGx1c19pZCI6IjEwMTI2NDE4NzUwNDUzNzczODg5MCIsImlkIjoxLCJ0eXBlIjoiZ29vZ2xlIn0.86xF-1BR6iKhhXLRJjkMp02yzC5mOCX9U8pNDrj2DoU
+        
+    + Body
+        
+            {
+                "id": 4,
+                "name": "item 6",
+                "description": "item 5 desc",
+                "categoryId": 1
+            }
+    
+            
++ Response 401 (application/json)
+
+        {
+            "success": false,
+            "message": "Access token is required"
+        }
++ Response 200 (application/json)
+
+        {
+            "data": {
+                "category": {
+                  "id": 1, 
+                  "name": "Soccer", 
+                  "slug": "soccer"
+                }, 
+                "description": "item 5 desc", 
+                "id": 4, 
+                "name": "item 6", 
+                "slug": "item-6", 
+                "userId": 1
+            }, 
+            "success": true
+        }
+        
+### Delete an item [DELETE /items/{id}]
+
++ Parameters
+    + id (number) - Id of a item
+
++ Request
+    + Headers
+    
+            Authorization: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJncGx1c19pZCI6IjEwMTI2NDE4NzUwNDUzNzczODg5MCIsImlkIjoxLCJ0eXBlIjoiZ29vZ2xlIn0.86xF-1BR6iKhhXLRJjkMp02yzC5mOCX9U8pNDrj2DoU
+        
+            
++ Response 401 (application/json)
+
+        {
+            "success": false,
+            "message": "Access token is required"
+        }
++ Response 200 (application/json)
+
+        {
+            "success": true
+        }
