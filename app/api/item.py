@@ -37,7 +37,7 @@ def item_details(item_id):
     return jsonify(response), 200
 
 
-@item_api_app.route('/api/latest-items')
+@item_api_app.route('/api/items/latest')
 def latest_items():
     items = db.session.query(Item).order_by(Item.created_date.desc()).limit(10).all()
 
