@@ -1,80 +1,114 @@
 FORMAT: 1A
-HOST: http://polls.apiblueprint.org/
+HOST: http://localhost:5000/api
 
-# Item Catalog
+#ItemCatalog
 
-Polls is a simple API allowing consumers to view polls and vote in them.
+## Category collection [/categories]
 
-## Questions Collection [/questions]
-
-### List All Questions [GET]
+### List all categories [GET]
 
 + Response 200 (application/json)
 
-        [
+        {
+          "data": [
             {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
-                    {
-                        "choice": "Swift",
-                        "votes": 2048
-                    }, {
-                        "choice": "Python",
-                        "votes": 1024
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 512
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 256
-                    }
-                ]
+              "id": 1, 
+              "name": "Soccer", 
+              "slug": "soccer"
+            }, 
+            {
+              "id": 2, 
+              "name": "Basketball", 
+              "slug": "basketball"
             }
-        ]
+          ], 
+          "success": true
+        }
+        
+### Category details [GET /cartegories/{slug}]
 
-### Create a New Question [POST]
++ Parameters
+    + slug (string) - slug of a category
 
-You may create your own question using this action. It takes a JSON
-object containing a question and a collection of answers in the
-form of choices.
-
-+ Request (application/json)
++ Response 400 (application/json)
 
         {
-            "question": "Favourite programming language?",
-            "choices": [
-                "Swift",
-                "Python",
-                "Objective-C",
-                "Ruby"
-            ]
+            "message": "Category not found!", 
+            "success": false
+        }
+        
++ Response 200 (application/json)
+        
+        {
+            "data": {
+                "id": 1, 
+                "items": [], 
+                "name": "Soccer", 
+                "slug": "soccer"
+            }, 
+            "success": true
+        }
+        
+## Item collection [/items]
+
+### Get latest items [GET /items/latest]
+
++ Response 200 (application/json)
+    
+        {
+            "data": [
+                {
+                  "category": {
+                    "id": 2, 
+                    "name": "Basketball", 
+                    "slug": "basketball"
+                  }, 
+                  "id": 2, 
+                  "name": "item 2", 
+                  "slug": "item-2"
+                }, 
+                {
+                  "category": {
+                    "id": 1, 
+                    "name": "Soccer", 
+                    "slug": "soccer"
+                  }, 
+                  "id": 1, 
+                  "name": "item 1", 
+                  "slug": "item-1"
+                }
+            ], 
+            "success": true
         }
 
-+ Response 201 (application/json)
+### Get item details [GET /items/{id}]
 
-    + Headers
++ Parameters
+    + id (number) - Id of a item
+        
++ Response 200 (application/json)
 
-            Location: /questions/2
+        {
+            "data": {
+                "category": {
+                  "id": 1, 
+                  "name": "Soccer", 
+                  "slug": "soccer"
+                }, 
+                "description": "item 1 desc", 
+                "id": 1, 
+                "name": "item 1", 
+                "slug": "item-1", 
+                "userId": 1
+            }, 
+            "success": true
+        }
 
-    + Body
++ Response 400 (application/json)
 
-            {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
-                    {
-                        "choice": "Swift",
-                        "votes": 0
-                    }, {
-                        "choice": "Python",
-                        "votes": 0
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 0
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 0
-                    }
-                ]
-            }
+        {
+            "message": "Item not found!", 
+            "success": false
+        }
+        
+### Add an item [POST /items]
