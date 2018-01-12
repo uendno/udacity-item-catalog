@@ -3,6 +3,32 @@ HOST: http://localhost:5000/api
 
 #ItemCatalog
 
+## Authentication [/]
+
+### Exchange Google's authorization code for app's access token [POST /gconnect]
+
++ Request (application/json)
+    
+    + Body
+        {
+            "code": "4/jctOX74PWx6XHnCHeHJ1QnsO0EZfWRlLiy0lm5U10B0"
+        }
+
++ Response 200 (application/json)
+
+        {
+            "data": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJncGx1c19pZCI6IjEwMTI2NDE4NzUwNDUzNzczODg5MCIsImlkIjoxLCJ0eXBlIjoiZ29vZ2xlIn0.86xF-1BR6iKhhXLRJjkMp02yzC5mOCX9U8pNDrj2DoU", 
+            "success": true
+        }
+
++ Response 400 (application/json)
+    
+        {
+            "success": false,
+            "message": "Can't use authorization code to exchange for access token"
+        }
+
+
 ## Category collection [/categories]
 
 ### List all categories [GET]
