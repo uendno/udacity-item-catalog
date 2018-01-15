@@ -1,80 +1,246 @@
 FORMAT: 1A
-HOST: http://polls.apiblueprint.org/
+HOST: http://localhost:5000/api
 
-# Item Catalog
+#ItemCatalog
 
-Polls is a simple API allowing consumers to view polls and vote in them.
+## Authentication [/]
 
-## Questions Collection [/questions]
-
-### List All Questions [GET]
-
-+ Response 200 (application/json)
-
-        [
-            {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
-                    {
-                        "choice": "Swift",
-                        "votes": 2048
-                    }, {
-                        "choice": "Python",
-                        "votes": 1024
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 512
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 256
-                    }
-                ]
-            }
-        ]
-
-### Create a New Question [POST]
-
-You may create your own question using this action. It takes a JSON
-object containing a question and a collection of answers in the
-form of choices.
+### Exchange Google's authorization code for app's access token [POST /gconnect]
 
 + Request (application/json)
 
+    + Body
+    
         {
-            "question": "Favourite programming language?",
-            "choices": [
-                "Swift",
-                "Python",
-                "Objective-C",
-                "Ruby"
-            ]
+            "code": "4/jctOX74PWx6XHnCHeHJ1QnsO0EZfWRlLiy0lm5U10B0"
         }
 
-+ Response 201 (application/json)
++ Response 200 (application/json)
 
-    + Headers
+        {
+            "data": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJncGx1c19pZCI6IjEwMTI2NDE4NzUwNDUzNzczODg5MCIsImlkIjoxLCJ0eXBlIjoiZ29vZ2xlIn0.86xF-1BR6iKhhXLRJjkMp02yzC5mOCX9U8pNDrj2DoU", 
+            "success": true
+        }
 
-            Location: /questions/2
++ Response 400 (application/json)
+    
+        {
+            "success": false,
+            "message": "Can't use authorization code to exchange for access token"
+        }
 
-    + Body
 
+## Category collection [/categories]
+
+### List all categories [GET]
+
++ Response 200 (application/json)
+
+        {
+          "data": [
             {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
-                    {
-                        "choice": "Swift",
-                        "votes": 0
-                    }, {
-                        "choice": "Python",
-                        "votes": 0
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 0
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 0
-                    }
-                ]
+              "id": 1, 
+              "name": "Soccer", 
+              "slug": "soccer"
+            }, 
+            {
+              "id": 2, 
+              "name": "Basketball", 
+              "slug": "basketball"
             }
+          ], 
+          "success": true
+        }
+        
+### Category details [GET /cartegories/{slug}]
+
++ Parameters
+    + slug (string) - slug of a category
+
++ Response 400 (application/json)
+
+        {
+            "message": "Category not found!", 
+            "success": false
+        }
+        
++ Response 200 (application/json)
+        
+        {
+            "data": {
+                "id": 1, 
+                "items": [], 
+                "name": "Soccer", 
+                "slug": "soccer"
+            }, 
+            "success": true
+        }
+        
+## Item collection [/items]
+
+### Get latest items [GET /items/latest]
+
++ Response 200 (application/json)
+    
+        {
+            "data": [
+                {
+                  "category": {
+                    "id": 2, 
+                    "name": "Basketball", 
+                    "slug": "basketball"
+                  }, 
+                  "id": 2, 
+                  "name": "item 2", 
+                  "slug": "item-2"
+                }, 
+                {
+                  "category": {
+                    "id": 1, 
+                    "name": "Soccer", 
+                    "slug": "soccer"
+                  }, 
+                  "id": 1, 
+                  "name": "item 1", 
+                  "slug": "item-1"
+                }
+            ], 
+            "success": true
+        }
+
+### Get item details [GET /items/{id}]
+
++ Parameters
+    + id (number) - Id of a item
+        
++ Response 200 (application/json)
+
+        {
+            "data": {
+                "category": {
+                  "id": 1, 
+                  "name": "Soccer", 
+                  "slug": "soccer"
+                }, 
+                "description": "item 1 desc", 
+                "id": 1, 
+                "name": "item 1", 
+                "slug": "item-1", 
+                "userId": 1
+            }, 
+            "success": true
+        }
+
++ Response 400 (application/json)
+
+        {
+            "message": "Item not found!", 
+            "success": false
+        }
+        
+### Add an item [POST /items]
+
++ Request  (application/json)
+    + Headers
+    
+            Authorization: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJncGx1c19pZCI6IjEwMTI2NDE4NzUwNDUzNzczODg5MCIsImlkIjoxLCJ0eXBlIjoiZ29vZ2xlIn0.86xF-1BR6iKhhXLRJjkMp02yzC5mOCX9U8pNDrj2DoU
+        
+    + Body
+        
+            {
+                "name": "item 5",
+                "description": "item 5 desc",
+                "categoryId": 1
+            }
+    
+            
++ Response 401 (application/json)
+
+        {
+            "success": false,
+            "message": "Access token is required"
+        }
++ Response 200 (application/json)
+
+        {
+            "data": {
+                "category": {
+                  "id": 1, 
+                  "name": "Soccer", 
+                  "slug": "soccer"
+                }, 
+                "description": "item 5 desc", 
+                "id": 4, 
+                "name": "item 5", 
+                "slug": "item-5", 
+                "userId": 1
+            }, 
+            "success": true
+        }
+
+### Update an item [PUT /items/{id}]
+
++ Parameters
+    + id (number) - Id of a item
+
++ Request  (application/json)
+    + Headers
+    
+            Authorization: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJncGx1c19pZCI6IjEwMTI2NDE4NzUwNDUzNzczODg5MCIsImlkIjoxLCJ0eXBlIjoiZ29vZ2xlIn0.86xF-1BR6iKhhXLRJjkMp02yzC5mOCX9U8pNDrj2DoU
+        
+    + Body
+        
+            {
+                "id": 4,
+                "name": "item 6",
+                "description": "item 5 desc",
+                "categoryId": 1
+            }
+    
+            
++ Response 401 (application/json)
+
+        {
+            "success": false,
+            "message": "Access token is required"
+        }
++ Response 200 (application/json)
+
+        {
+            "data": {
+                "category": {
+                  "id": 1, 
+                  "name": "Soccer", 
+                  "slug": "soccer"
+                }, 
+                "description": "item 5 desc", 
+                "id": 4, 
+                "name": "item 6", 
+                "slug": "item-6", 
+                "userId": 1
+            }, 
+            "success": true
+        }
+        
+### Delete an item [DELETE /items/{id}]
+
++ Parameters
+    + id (number) - Id of a item
+
++ Request
+    + Headers
+    
+            Authorization: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJncGx1c19pZCI6IjEwMTI2NDE4NzUwNDUzNzczODg5MCIsImlkIjoxLCJ0eXBlIjoiZ29vZ2xlIn0.86xF-1BR6iKhhXLRJjkMp02yzC5mOCX9U8pNDrj2DoU
+        
+            
++ Response 401 (application/json)
+
+        {
+            "success": false,
+            "message": "Access token is required"
+        }
++ Response 200 (application/json)
+
+        {
+            "success": true
+        }
