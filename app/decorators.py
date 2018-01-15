@@ -1,8 +1,7 @@
 from flask import request
-from app.errors import UnauthorizedError
 import jwt
 from app import config
-from app.errors import UnauthorizedError
+from app.models.errors import UnauthorizedError
 from functools import wraps
 
 

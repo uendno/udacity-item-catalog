@@ -1,5 +1,4 @@
-from flask_script import Manager, Shell, Server
-
+from flask_script import Manager
 from app import app, db
 from app.models import Category
 from slugify import slugify
