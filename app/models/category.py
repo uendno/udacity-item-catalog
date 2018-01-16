@@ -1,5 +1,7 @@
-from app import db
 import datetime
+
+from app import db
+
 
 
 class Category(db.Model):
@@ -21,9 +23,13 @@ class Category(db.Model):
         :param category_id:
         :return:
         """
-        results = db.session.query(Category).filter_by(id=category_id).all()
+        return db.session.query(Category).filter_by(id=category_id).one_or_none()
 
-        if len(results) > 0:
-            return results[0]
-        else:
-            return None
+    @staticmethod
+    def find_by_slug(slug):
+        """
+        Find a category by its slug
+        :param slug:
+        :return:
+        """
+        return db.session.query(Category).filter_by(slug=slug).one_or_none()

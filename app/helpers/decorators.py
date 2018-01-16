@@ -1,11 +1,18 @@
-from flask import request
+from functools import wraps
+
 import jwt
+from flask import request
+
 from app import config
 from app.models.errors import UnauthorizedError
-from functools import wraps
 
 
 def auth_enabled(is_required):
+    """
+    Check access token if it's required and then decode it
+    :param is_required:
+    :return:
+    """
     def decorated(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
@@ -19,7 +26,7 @@ def auth_enabled(is_required):
             if access_token is not None:
                 try:
                     decoded = jwt.decode(access_token, config.SECRET_KEY, algorithms=['HS256'])
-                    kwargs['decoded'] = decoded
+                    kwargs['user_info'] = decoded
                 except Exception:
                     raise UnauthorizedError
 

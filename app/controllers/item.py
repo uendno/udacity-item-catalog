@@ -1,28 +1,28 @@
+from jsonschema import validate
+from slugify import slugify
 from flask import Blueprint, jsonify, request
+
 from app import db
 from app.models import Item, Category
 from app.models.errors import ValidationError
-from app.decorators import auth_enabled
-from jsonschema import validate
-from slugify import slugify
+from helpers.decorators import auth_enabled
+from app.helpers.response import send_success
 
 item_controller = Blueprint('item_controller', __name__)
 
 
-@item_controller.route('/api/items/<int:item_id>', methods=['GET'])
-def item_details(item_id):
+@item_controller.route('/items/<int:item_id>', methods=['GET'])
+def get_item(item_id):
     """
     Get details for an item. Find by its id
     :param item_id: item id
     :return:
     """
 
-    results = db.session.query(Item).filter_by(id=item_id).all()
+    item = Item.find_by_id(item_id)
 
-    if len(results) == 0:
+    if item is None:
         raise ValidationError('Item not found!')
-
-    item = results[0]
 
     response = {
         'success': True,
@@ -43,22 +43,25 @@ def item_details(item_id):
     return jsonify(response), 200
 
 
-@item_controller.route('/api/items/latest')
-def latest_items():
+@item_controller.route('/items')
+def get_items():
     """
-    Get a list of latest items
+    Get a list of items
     :return:
     """
 
-    items = db.session.query(Item).order_by(Item.created_date.desc()).limit(10).all()
+    mode = request.args.get('mode')
+    limit = request.args.get('limit')
 
-    response = {
-        'success': True,
-        'data': []
-    }
+    if mode == 'latest':
+        items = Item.get_last_n_items(limit)
+    else:
+        items = Item.get_all_items()
+
+    data = []
 
     for item in items:
-        response['data'].append({
+        data.append({
             'id': item.id,
             'name': item.name,
             'slug': item.slug,
@@ -69,24 +72,23 @@ def latest_items():
             }
         })
 
-    return jsonify(response), 200
+    return send_success(data)
 
 
-@item_controller.route('/api/items/<int:item_id>', methods=['PUT'])
+@item_controller.route('/items/<int:item_id>', methods=['PUT'])
 @auth_enabled(is_required=True)
-def update_item(item_id, decoded):
+def update_item(item_id, user_info):
     """
     Update an item, find by its id
     Protected
     :param item_id: item id
-    :param decoded: decoded access token
+    :param user_info: decoded access token
     :return:
     """
 
     data = request.get_json()
 
     # validate json
-
     schema = {
         'name': 'string',
         'description': 'string',
@@ -100,24 +102,22 @@ def update_item(item_id, decoded):
         raise ValidationError(e.args[0])
         pass
 
-    # validate item id
+    # Validate item id
+    item = Item.get_user_item(item_id, user_info.get('id'))
 
-    results = db.session.query(Item).filter_by(id=item_id, user_id=decoded['id']).all()
-
-    if len(results) == 0:
+    if item is None:
         raise ValidationError('Item not found!')
 
-    item = results[0]
+    # Validate item name
+    slug = slugify(data['name'])
 
-    # validate item name
+    if slug != item.slug:
+        valid = Item.validate_slug(slug)
 
-    valid = Item.validate_slug(slugify(data['name']), item.id)
+        if not valid:
+            raise ValidationError('An item with the same name has already been added. Please try another name.')
 
-    if not valid:
-        raise ValidationError('An item with the same name has already been added. Please try another name.')
-
-    # validate category id
-
+    # Validate category id
     category = Category.find_by_id(data['categoryId'])
 
     if category is None:
@@ -131,39 +131,35 @@ def update_item(item_id, decoded):
     db.session.add(item)
     db.session.commit()
 
-    response = {
-        'success': True,
-        'data': {
-            'id': item.id,
-            'name': item.name,
-            'slug': item.slug,
-            'category': {
-                'name': item.category.name,
-                'id': item.category.id,
-                'slug': item.category.slug
-            },
-            'description': item.description,
-            'userId': item.user_id
+    data = {
+        'id': item.id,
+        'name': item.name,
+        'slug': item.slug,
+        'category': {
+            'name': item.category.name,
+            'id': item.category.id,
+            'slug': item.category.slug
         },
+        'description': item.description,
+        'userId': item.user_id
     }
 
-    return jsonify(response), 200
+    return send_success(data)
 
 
-@item_controller.route('/api/items', methods=['POST'])
+@item_controller.route('/items', methods=['POST'])
 @auth_enabled(is_required=True)
-def add_item(decoded):
+def create_item(user_info):
     """
     Add an item
     Protected
-    :param decoded: decoded access token
+    :param user_info: decoded access token
     :return:
     """
 
     data = request.get_json()
 
-    # validate json
-
+    # Validate json
     schema = {
         'name': 'string',
         'description': 'string',
@@ -175,72 +171,59 @@ def add_item(decoded):
         validate(data, schema)
     except Exception as e:
         raise ValidationError(e.args[0])
-        pass
 
-    # validate item name
-
+    # Validate item name
     valid = Item.validate_slug(slugify(data['name']))
 
     if not valid:
         raise ValidationError('An item with the same name has already been added. Please try another name.')
 
-    # validate category id
-
+    # Validate category id
     category = Category.find_by_id(data['categoryId'])
 
     if category is None:
         raise ValidationError('Invalid category Id')
 
     item = Item(name=data['name'], description=data['description'], category_id=data['categoryId'],
-                user_id=decoded['id'], slug=slugify(data['name']))
+                user_id=user_info['id'], slug=slugify(data['name']))
 
     db.session.add(item)
     db.session.commit()
 
-    response = {
-        'success': True,
-        'data': {
-            'id': item.id,
-            'name': item.name,
-            'slug': item.slug,
-            'category': {
-                'name': item.category.name,
-                'id': item.category.id,
-                'slug': item.category.slug
-            },
-            'description': item.description,
-            'userId': item.user_id
+    data = {
+        'id': item.id,
+        'name': item.name,
+        'slug': item.slug,
+        'category': {
+            'name': item.category.name,
+            'id': item.category.id,
+            'slug': item.category.slug
         },
+        'description': item.description,
+        'userId': item.user_id
     }
 
-    return jsonify(response), 200
+    return send_success(data)
 
 
-@item_controller.route('/api/items/<int:item_id>', methods=['DELETE'])
+@item_controller.route('/items/<int:item_id>', methods=['DELETE'])
 @auth_enabled(is_required=True)
-def delete_item(item_id, decoded):
+def delete_item(item_id, user_info):
     """
     Delete an item, find by its id
     Protected
     :param item_id: item id
-    :param decoded: decoded access token
+    :param user_info: decoded access token
     :return:
     """
 
-    # validate item id
+    # Validate item id
+    item = Item.get_user_item(item_id, user_info.get('id'))
 
-    results = db.session.query(Item).filter_by(id=item_id, user_id=decoded['id']).all()
-
-    if len(results) == 0:
+    if item is None:
         raise ValidationError('Item not found!')
-
-    item = results[0]
 
     db.session.delete(item)
     db.session.commit()
 
-    response = {
-        'success': True
-    }
-
-    return jsonify(response), 200
+    return send_success(None)

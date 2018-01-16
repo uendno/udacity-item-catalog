@@ -1,11 +1,14 @@
-from flask import Blueprint, request, jsonify
-import requests
-from oauth2client.client import flow_from_clientsecrets
 import json
-from app import db, config
-from app.models import User, GoogleProvider
-from app.models.errors import ValidationError
+
 import jwt
+import requests
+from flask import Blueprint, request
+from oauth2client.client import flow_from_clientsecrets
+
+from app import db, config
+from app.models import User, ProviderInfo
+from app.models.errors import ValidationError
+from app.helpers.response import send_success, send_error
 
 auth_controller = Blueprint('auth_controller', __name__)
 
@@ -13,13 +16,16 @@ CLIENT_SECRET_FILE = 'app/client_secret.json'
 CLIENT_ID = json.loads(open(CLIENT_SECRET_FILE, 'r').read())['web']['client_id']
 
 
-# login with google
-@auth_controller.route('/api/gconnect', methods=['POST'])
-def g_connect():
+@auth_controller.route('/auth', methods=['POST'])
+def login():
     """
     Exchange Google's authorization code for an access token
     :return:
     """
+
+    # Only accept Google authorization at this time
+    if request.args.get('provider') != 'google':
+        return send_error('Invalid provider', 400)
 
     code = request.get_json()['code']
     access_token_data = {}
@@ -34,7 +40,7 @@ def g_connect():
         credentials = oauth_flow.step2_exchange(code)
     except Exception as e:
 
-        raise ValidationError('Can\' use authorization code to exchange for access token')
+        raise ValidationError('Can\'t use authorization code to exchange for access token')
 
     gplus_id = credentials.id_token['sub']
     access_token_data['gplus_id'] = gplus_id
@@ -42,37 +48,37 @@ def g_connect():
     # Get user info
     user_info_url = 'https://www.googleapis.com/oauth2/v1/userinfo'
     params = {'access_token': credentials.access_token, 'alt': 'json'}
-    answer = requests.get(user_info_url, params=params)
-    data = json.loads(answer.text)
+    res = requests.get(user_info_url, params=params)
+    data = json.loads(res.text)
 
-    provider_infos = db.session.query(GoogleProvider).filter_by(id=data['id']).all()
+    provider_info = ProviderInfo.find_by_id_and_type(data['id'], 'google')
 
-    if len(provider_infos) > 0:
-        user = db.session.query(User).filter_by(providerType='google', providerId=provider_infos[0].id).one()
-        # update provider info
-        provider_infos[0].access_token = credentials.access_token
-        db.session.add(provider_infos[0])
+    if provider_info is not None:
+        user = User.find_by_id(user_id=provider_info.user_id)
+
+        # Update provider info
+        provider_info.access_token = credentials.access_token
+        db.session.add(provider_info)
         db.session.commit()
 
         access_token_data['id'] = user.id
-        access_token_data['type'] = user.providerType
+        access_token_data['type'] = provider_info.type
 
     else:
 
-        # create user and provider_info
-        new_provider_info = GoogleProvider(id=data['id'], email=data['email'], access_token=credentials.access_token,
-                                           name=data['name'], picture=data['picture'])
-        new_user = User(username=data['email'], providerType='google', providerId=data['id'])
-        db.session.add(new_provider_info)
+        # Create user and provider_info
+        new_user = User(username=data['email'])
         db.session.add(new_user)
         db.session.commit()
 
+        new_provider_info = ProviderInfo(id=data['id'], email=data['email'], access_token=credentials.access_token,
+                                         name=data['name'], picture=data['picture'], user_id=new_user.id, type='google')
+        db.session.add(new_provider_info)
+        db.session.commit()
+
         access_token_data['id'] = new_user.id
-        access_token_data['type'] = new_user.providerType
+        access_token_data['type'] = new_provider_info.type
 
     access_token = jwt.encode(access_token_data, config.SECRET_KEY, algorithm='HS256')
 
-    return jsonify({
-        'data': access_token.decode('utf-8'),
-        'success': True
-    }), 200
+    return send_success(access_token.decode('utf-8'))

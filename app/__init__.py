@@ -1,17 +1,19 @@
 from flask import Flask, jsonify
-from flask_cors import CORS
-from app.extensions import db
+
+from app.extensions import db, enable_cors
 from app.controllers.errors import errors_controller
 from app.controllers.category import category_controller
 from app.controllers.item import item_controller
 from app.controllers.auth import auth_controller
 
 app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": "*"}})
 app.config.from_object('app.config')
 
 # setup db
 db.init_app(app)
+
+# setup CORS
+enable_cors(app)
 
 # setup controllers
 app.register_blueprint(category_controller)
@@ -32,7 +34,7 @@ def page_not_found(e):
 
 
 @app.errorhandler(405)
-def page_not_found(e):
+def method_not_allowed(e):
     response = {
         'success': False,
         'message': 'Method not allowed'
