@@ -5,7 +5,10 @@ HOST: http://localhost:5000
 
 ## Authentication [/auth]
 
-### Exchange Google's authorization code for app's access token [POST /auth?provider=google]
+### Get access token [POST /auth{?provider}]
+
++ Parameters
+    + provider (required, string, `google`) - Authorization provider
 
 + Request (application/json)
 
