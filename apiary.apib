@@ -1,26 +1,32 @@
 FORMAT: 1A
-HOST: http://localhost:5000/api
+HOST: http://localhost:5000
 
 #ItemCatalog
 
-## Authentication [/]
+## Authentication [/auth]
 
-### Exchange Google's authorization code for app's access token [POST /gconnect]
+### Exchange Google's authorization code for app's access token [POST /auth?provider=google]
 
 + Request (application/json)
 
     + Body
     
-        {
-            "code": "4/jctOX74PWx6XHnCHeHJ1QnsO0EZfWRlLiy0lm5U10B0"
-        }
+            {
+                "code": "4/jctOX74PWx6XHnCHeHJ1QnsO0EZfWRlLiy0lm5U10B0"
+            }
 
 + Response 200 (application/json)
 
-        {
-            "data": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJncGx1c19pZCI6IjEwMTI2NDE4NzUwNDUzNzczODg5MCIsImlkIjoxLCJ0eXBlIjoiZ29vZ2xlIn0.86xF-1BR6iKhhXLRJjkMp02yzC5mOCX9U8pNDrj2DoU", 
-            "success": true
-        }
+    + Attributes (object)
+        + data: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJncGx1c19pZCI6IjEwMTI2NDE4NzUwNDUzNzczODg5MCIsImlkIjoxLCJ0eXBlIjoiZ29vZ2xlIn0.86xF-1BR6iKhhXLRJjkMp02yzC5mOCX9U8pNDrj2DoU' (string, required) - The access token
+        
+        
+    + Body
+        
+            {
+                "data": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJncGx1c19pZCI6IjEwMTI2NDE4NzUwNDUzNzczODg5MCIsImlkIjoxLCJ0eXBlIjoiZ29vZ2xlIn0.86xF-1BR6iKhhXLRJjkMp02yzC5mOCX9U8pNDrj2DoU", 
+                "success": true
+            }
 
 + Response 400 (application/json)
     
@@ -32,25 +38,35 @@ HOST: http://localhost:5000/api
 
 ## Category collection [/categories]
 
-### List all categories [GET]
+### Get categories [GET]
 
 + Response 200 (application/json)
 
-        {
-          "data": [
+    + Attributes
+        + data: [] (array, required) - A list of categories.
+            + (object)
+                + id: 1 (number, required) - Category's ID
+                + name: Soccer (string, required) - Category's name
+                + slug: soccer (string, required) - Category's slug
+            
+    + Body
+    
             {
-              "id": 1, 
-              "name": "Soccer", 
-              "slug": "soccer"
-            }, 
-            {
-              "id": 2, 
-              "name": "Basketball", 
-              "slug": "basketball"
+                "data": [
+                    {
+                      "id": 1, 
+                      "name": "Soccer", 
+                      "slug": "soccer"
+                    }, 
+                    {
+                      "id": 2, 
+                      "name": "Basketball", 
+                      "slug": "basketball"
+                    }
+                ], 
+                "success": true
             }
-          ], 
-          "success": true
-        }
+        
         
 ### Category details [GET /cartegories/{slug}]
 
@@ -65,53 +81,100 @@ HOST: http://localhost:5000/api
         }
         
 + Response 200 (application/json)
+
+    + Attributes
+    
+        + data (object, required) - The category
+            + id: 1 (number, required) - Category's ID
+            + name: Soccer (string, required) - Category's name
+            + slug: soccer (string, required) - Category's slug
+            + items: [] (array, required) - An array of items
+                + (object)
+                    + category (object, required)
+                        + id: 1 (number, required) - Category's ID
+                        + name: Soccer (string, required) - Category's name
+                        + slug: soccer (string, required) - Category's slug
+                    + id: 1 (number, required) - Item's ID
+                    + name: Item 1 (string, required) - Items' name
+                    + slug: item-1 (string, required) - Item's slug
+                    
+
+    + Body
         
-        {
-            "data": {
-                "id": 1, 
-                "items": [], 
-                "name": "Soccer", 
-                "slug": "soccer"
-            }, 
-            "success": true
-        }
+            {
+                "data": {
+                    "id": 1, 
+                    "items": [], 
+                    "name": "Soccer", 
+                    "slug": "soccer"
+                }, 
+                "success": true
+            }
         
 ## Item collection [/items]
 
-### Get latest items [GET /items/latest]
+### Get items [GET /items{?mode}{?limit}]
+
++ Parameters
+    + mode (optional, string, `latest`) ... Set to `latest` to get latest items
+    + limit (optional, number, `10`) ... Limit number of items in response. Default is 10
 
 + Response 200 (application/json)
+    + Attributes
+        + data (array, required) - An array of items
+            + (object)
+                + category (object, required)
+                    + id: 1 (number, required) - Category's ID
+                    + name: Soccer (string, required) - Category's name
+                    + slug: soccer (string, required) - Category's slug
+                + id: 1 (number, required) - Item's ID
+                + name: Item 1 (string, required) - Items' name
+                + slug: item-1 (string, required) - Item's slug
     
-        {
-            "data": [
-                {
-                  "category": {
-                    "id": 2, 
-                    "name": "Basketball", 
-                    "slug": "basketball"
-                  }, 
-                  "id": 2, 
-                  "name": "item 2", 
-                  "slug": "item-2"
-                }, 
-                {
-                  "category": {
-                    "id": 1, 
-                    "name": "Soccer", 
-                    "slug": "soccer"
-                  }, 
-                  "id": 1, 
-                  "name": "item 1", 
-                  "slug": "item-1"
-                }
-            ], 
-            "success": true
-        }
+    + Body
+    
+            {
+                "data": [
+                    {
+                      "category": {
+                        "id": 2, 
+                        "name": "Basketball", 
+                        "slug": "basketball"
+                      }, 
+                      "id": 2, 
+                      "name": "item 2", 
+                      "slug": "item-2"
+                    }, 
+                    {
+                      "category": {
+                        "id": 1, 
+                        "name": "Soccer", 
+                        "slug": "soccer"
+                      }, 
+                      "id": 1, 
+                      "name": "item 1", 
+                      "slug": "item-1"
+                    }
+                ], 
+                "success": true
+            }
 
 ### Get item details [GET /items/{id}]
 
 + Parameters
     + id (number) - Id of a item
+    
++ Attributes
+    + data (object, required) - The item
+        + category (object, required)
+            + id: 1 (number, required) - Category's ID
+            + name: Soccer (string, required) - Category's name
+            + slug: soccer (string, required) - Category's slug
+        + id: 1 (number, required) - Item's ID
+        + name: Item 1 (string, required) - Items' name
+        + slug: item-1 (string, required) - Item's slug
+        + description: Item 1 description (string, required) - Item's description
+        + userId: 1 (number, required) - ID of item's owner
         
 + Response 200 (application/json)
 
@@ -145,6 +208,13 @@ HOST: http://localhost:5000/api
     
             Authorization: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJncGx1c19pZCI6IjEwMTI2NDE4NzUwNDUzNzczODg5MCIsImlkIjoxLCJ0eXBlIjoiZ29vZ2xlIn0.86xF-1BR6iKhhXLRJjkMp02yzC5mOCX9U8pNDrj2DoU
         
+        
+    + Attributes
+        
+        + name (string, required) - Item's name
+        + description (string, required) - Item's description
+        + categoryId (number, required) - Id of a category which this item belongs to. Must be an valid ID
+        
     + Body
         
             {
@@ -161,22 +231,35 @@ HOST: http://localhost:5000/api
             "message": "Access token is required"
         }
 + Response 200 (application/json)
+    + Attributes
+        + data (object, required) - Added item
+            + category (object, required)
+                + id: 1 (number, required) - Category's ID
+                + name: Soccer (string, required) - Category's name
+                + slug: soccer (string, required) - Category's slug
+            + id: 1 (number, required) - Item's ID
+            + name: Item 1 (string, required) - Items' name
+            + slug: item-1 (string, required) - Item's slug
+            + description: Item 1 description (string, required) - Item's description
+            + userId: 1 (number, required) - ID of item's owner
+    
+    + Body
 
-        {
-            "data": {
-                "category": {
-                  "id": 1, 
-                  "name": "Soccer", 
-                  "slug": "soccer"
+            {
+                "data": {
+                    "category": {
+                      "id": 1, 
+                      "name": "Soccer", 
+                      "slug": "soccer"
+                    }, 
+                    "description": "item 5 desc", 
+                    "id": 4, 
+                    "name": "item 5", 
+                    "slug": "item-5", 
+                    "userId": 1
                 }, 
-                "description": "item 5 desc", 
-                "id": 4, 
-                "name": "item 5", 
-                "slug": "item-5", 
-                "userId": 1
-            }, 
-            "success": true
-        }
+                "success": true
+            }
 
 ### Update an item [PUT /items/{id}]
 
@@ -206,21 +289,35 @@ HOST: http://localhost:5000/api
         }
 + Response 200 (application/json)
 
-        {
-            "data": {
-                "category": {
-                  "id": 1, 
-                  "name": "Soccer", 
-                  "slug": "soccer"
+    + Attributes
+        + data (object, required) - Added item
+            + category (object, required)
+                + id: 1 (number, required) - Category's ID
+                + name: Soccer (string, required) - Category's name
+                + slug: soccer (string, required) - Category's slug
+            + id: 1 (number, required) - Item's ID
+            + name: Item 1 (string, required) - Items' name
+            + slug: item-1 (string, required) - Item's slug
+            + description: Item 1 description (string, required) - Item's description
+            + userId: 1 (number, required) - ID of item's owner
+    
+    + Body
+        
+            {
+                "data": {
+                    "category": {
+                      "id": 1, 
+                      "name": "Soccer", 
+                      "slug": "soccer"
+                    }, 
+                    "description": "item 5 desc", 
+                    "id": 4, 
+                    "name": "item 6", 
+                    "slug": "item-6", 
+                    "userId": 1
                 }, 
-                "description": "item 5 desc", 
-                "id": 4, 
-                "name": "item 6", 
-                "slug": "item-6", 
-                "userId": 1
-            }, 
-            "success": true
-        }
+                "success": true
+            }
         
 ### Delete an item [DELETE /items/{id}]
 
