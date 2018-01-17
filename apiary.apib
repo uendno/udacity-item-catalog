@@ -5,7 +5,10 @@ HOST: http://localhost:5000
 
 ## Authentication [/auth]
 
-### Exchange Google's authorization code for app's access token [POST /auth?provider=google]
+### Get access token [POST /auth{?provider}]
+
++ Parameters
+    + provider (required, string, `google`) - Authorization provider
 
 + Request (application/json)
 
@@ -18,7 +21,7 @@ HOST: http://localhost:5000
 + Response 200 (application/json)
 
     + Attributes (object)
-        + data: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJncGx1c19pZCI6IjEwMTI2NDE4NzUwNDUzNzczODg5MCIsImlkIjoxLCJ0eXBlIjoiZ29vZ2xlIn0.86xF-1BR6iKhhXLRJjkMp02yzC5mOCX9U8pNDrj2DoU' (string, required) - The access token
+        + data: `eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJncGx1c19pZCI6IjEwMTI2NDE4NzUwNDUzNzczODg5MCIsImlkIjoxLCJ0eXBlIjoiZ29vZ2xlIn0.86xF-1BR6iKhhXLRJjkMp02yzC5mOCX9U8pNDrj2DoU` (string, required) - The access token
         
         
     + Body
@@ -36,7 +39,7 @@ HOST: http://localhost:5000
         }
 
 
-## Category collection [/categories]
+## Category [/categories]
 
 ### Get categories [GET]
 
@@ -111,7 +114,7 @@ HOST: http://localhost:5000
                 "success": true
             }
         
-## Item collection [/items]
+## Item [/items]
 
 ### Get items [GET /items{?mode}{?limit}]
 
