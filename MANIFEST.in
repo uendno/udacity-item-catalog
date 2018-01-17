@@ -1,4 +1,0 @@
-include app/manifest.json
-
-recursive-include app/templates *.html
-recursive-include app/public *.js *.css
