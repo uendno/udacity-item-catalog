@@ -13,14 +13,16 @@ def send_success(data):
     }), 200
 
 
-def send_error(message, status_code):
+def send_error(message, errors=None, status_code=400):
     """
     Send error response
     :param message: message to be sent
+    :param errors: error object
     :param status_code: response's status code
     :return:
     """
     return jsonify({
         'success': False,
-        'message': message
+        'message': message,
+        'errors': errors
     }), status_code

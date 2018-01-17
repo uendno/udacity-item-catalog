@@ -8,7 +8,7 @@ manager = Manager(app)
 
 # initialize database
 @manager.command
-def initdb():
+def init_db():
     db.create_all()
 
 

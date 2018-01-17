@@ -19,10 +19,12 @@ def handle_error(error):
 
     if len(error.args) > 0:
         message = error.args[0]
+        errors = error.args[1] if len(error.args) > 1 else None
     else:
         message = ''
+        errors = None
 
-    return send_error(message, error.status_code)
+    return send_error(message, status_code=error.status_code, errors=errors)
 
 
 @errors_controller.app_errorhandler(Exception)
@@ -35,4 +37,4 @@ def handler_unexpected_error(error):
 
     logger.exception(error)
 
-    return send_error('An unexpected error has occurred', 500)
+    return send_error('An unexpected error has occurred', status_code=500)

@@ -25,7 +25,7 @@ def login():
 
     # Only accept Google authorization at this time
     if request.args.get('provider') != 'google':
-        return send_error('Invalid provider', 400)
+        return send_error('Invalid provider', status_code=400)
 
     code = request.get_json()['code']
     access_token_data = {}
@@ -79,6 +79,6 @@ def login():
         access_token_data['id'] = new_user.id
         access_token_data['type'] = new_provider_info.type
 
-    access_token = jwt.encode(access_token_data, config.SECRET_KEY, algorithm='HS256')
+    access_token = jwt.encode(access_token_data, config.JWT_SECRET_KEY, algorithm='HS256')
 
     return send_success(access_token.decode('utf-8'))

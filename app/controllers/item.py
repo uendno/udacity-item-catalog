@@ -7,6 +7,7 @@ from app.models import Item, Category
 from app.models.errors import ValidationError
 from helpers.decorators import auth_enabled
 from app.helpers.response import send_success
+from app.schemas import ItemSchema
 
 item_controller = Blueprint('item_controller', __name__)
 
@@ -24,23 +25,10 @@ def get_item(item_id):
     if item is None:
         raise ValidationError('Item not found!')
 
-    response = {
-        'success': True,
-        'data': {
-            'id': item.id,
-            'name': item.name,
-            'slug': item.slug,
-            'category': {
-                'name': item.category.name,
-                'id': item.category.id,
-                'slug': item.category.slug
-            },
-            'description': item.description,
-            'userId': item.user_id
-        },
-    }
+    item_schema = ItemSchema()
+    result = item_schema.dump(item)
 
-    return jsonify(response), 200
+    return send_success(result.data)
 
 
 @item_controller.route('/items')
@@ -58,21 +46,10 @@ def get_items():
     else:
         items = Item.get_all_items()
 
-    data = []
+    items_schema = ItemSchema(many=True, load_only=('user_id', 'description',))
+    result = items_schema.dump(items)
 
-    for item in items:
-        data.append({
-            'id': item.id,
-            'name': item.name,
-            'slug': item.slug,
-            'category': {
-                'name': item.category.name,
-                'id': item.category.id,
-                'slug': item.category.slug
-            }
-        })
-
-    return send_success(data)
+    return send_success(result.data)
 
 
 @item_controller.route('/items/<int:item_id>', methods=['PUT'])
@@ -89,28 +66,18 @@ def update_item(item_id, user_info):
     data = request.get_json()
 
     # validate json
-    schema = {
-        'name': 'string',
-        'description': 'string',
-        'categoryId': 'number',
-        'required': ['name', 'description', 'categoryId']
-    }
-
-    try:
-        validate(data, schema)
-    except Exception as e:
-        raise ValidationError(e.args[0])
-        pass
+    schema = ItemSchema(dump_only=('slug',))
+    errors = schema.validate(data)
+    if len(errors) > 0:
+        raise ValidationError('Post data error', errors)
 
     # Validate item id
     item = Item.get_user_item(item_id, user_info.get('id'))
-
     if item is None:
         raise ValidationError('Item not found!')
 
     # Validate item name
     slug = slugify(data['name'])
-
     if slug != item.slug:
         valid = Item.validate_slug(slug)
 
@@ -119,7 +86,6 @@ def update_item(item_id, user_info):
 
     # Validate category id
     category = Category.find_by_id(data['categoryId'])
-
     if category is None:
         raise ValidationError('Invalid category Id')
 
@@ -131,20 +97,10 @@ def update_item(item_id, user_info):
     db.session.add(item)
     db.session.commit()
 
-    data = {
-        'id': item.id,
-        'name': item.name,
-        'slug': item.slug,
-        'category': {
-            'name': item.category.name,
-            'id': item.category.id,
-            'slug': item.category.slug
-        },
-        'description': item.description,
-        'userId': item.user_id
-    }
+    item_schema = ItemSchema()
+    result = item_schema.dump(item)
 
-    return send_success(data)
+    return send_success(result.data)
 
 
 @item_controller.route('/items', methods=['POST'])
@@ -159,13 +115,11 @@ def create_item(user_info):
 
     data = request.get_json()
 
-    # Validate json
-    schema = {
-        'name': 'string',
-        'description': 'string',
-        'categoryId': 'number',
-        'required': ['name', 'description', 'categoryId']
-    }
+    # validate json
+    schema = ItemSchema(dump_only=('slug',))
+    errors = schema.validate(data)
+    if len(errors) > 0:
+        raise ValidationError('Post data error', errors)
 
     try:
         validate(data, schema)
@@ -190,20 +144,10 @@ def create_item(user_info):
     db.session.add(item)
     db.session.commit()
 
-    data = {
-        'id': item.id,
-        'name': item.name,
-        'slug': item.slug,
-        'category': {
-            'name': item.category.name,
-            'id': item.category.id,
-            'slug': item.category.slug
-        },
-        'description': item.description,
-        'userId': item.user_id
-    }
+    item_schema = ItemSchema()
+    result = item_schema.dump(item)
 
-    return send_success(data)
+    return send_success(result.data)
 
 
 @item_controller.route('/items/<int:item_id>', methods=['DELETE'])

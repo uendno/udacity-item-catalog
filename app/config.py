@@ -4,4 +4,4 @@ PORT = 5000
 SQLALCHEMY_DATABASE_URI = 'sqlite:///app.db'
 SQLALCHEMY_TRACK_MODIFICATIONS = True
 
-SECRET_KEY='asdasfdaskdmaskdmasd'
+JWT_SECRET_KEY = 'asdasfdaskdmaskdmasd'

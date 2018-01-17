@@ -8,3 +8,4 @@ pyjwt
 flask_cors
 jsonschema
 slugify
+marshmallow

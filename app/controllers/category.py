@@ -1,9 +1,9 @@
 from flask import Blueprint
 
-from app import db
-from app.models import Category, Item
+from app.models import Category
 from app.models.errors import ValidationError
 from app.helpers.response import send_success
+from app.schemas import CategorySchema
 
 category_controller = Blueprint('category_controller', __name__)
 
@@ -15,18 +15,12 @@ def get_categories():
     :return: Response contains list of categories
     """
 
-    categories = db.session.query(Category)
+    categories = Category.get_all_categories()
 
-    data = []
+    categories_schema = CategorySchema(many=True)
+    result = categories_schema.dump(categories)
 
-    for category in categories:
-        data.append({
-            'id': category.id,
-            'name': category.name,
-            'slug': category.slug,
-        })
-
-    return send_success(data)
+    return send_success(result.data)
 
 
 @category_controller.route('/categories/<string:category_slug>')
@@ -42,25 +36,7 @@ def get_category(category_slug):
     if category is None:
         raise ValidationError('Category not found!')
 
-    items = category.items
+    category_schema = CategorySchema(load_only=('items.category', 'items.description', 'items.user_id'))
+    result = category_schema.dump(category)
 
-    data = {
-        'id': category.id,
-        'name': category.name,
-        'slug': category.slug,
-        'items': []
-    }
-
-    for item in items:
-        data['items'].append({
-            'id': item.id,
-            'name': item.name,
-            'slug': item.slug,
-            'category': {
-                'name': item.category.name,
-                'id': item.category.id,
-                'slug': item.category.slug
-            }
-        })
-
-    return send_success(data)
+    return send_success(result.data)

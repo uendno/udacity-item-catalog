@@ -3,7 +3,6 @@ import datetime
 from app import db
 
 
-
 class Category(db.Model):
     """
     Category model
@@ -15,6 +14,10 @@ class Category(db.Model):
     name = db.Column(db.String(80), nullable=False)
     created_date = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     slug = db.Column(db.String(80), unique=True)
+
+    @staticmethod
+    def get_all_categories():
+        return db.session.query(Category).with_entities(Category.id, Category.name, Category.slug).all()
 
     @staticmethod
     def find_by_id(category_id):
@@ -32,4 +35,5 @@ class Category(db.Model):
         :param slug:
         :return:
         """
-        return db.session.query(Category).filter_by(slug=slug).one_or_none()
+        return db.session.query(Category).filter_by(
+            slug=slug).one_or_none()
