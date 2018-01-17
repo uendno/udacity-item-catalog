@@ -37,7 +37,7 @@ class Item(db.Model):
     @staticmethod
     def get_user_item(item_id, user_id):
         """
-        find an item by its it and its user id
+        Find an item by its it and its user id
         :param item_id: item id
         :param user_id: user id
         :return: an Item or None

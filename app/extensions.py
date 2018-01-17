@@ -3,7 +3,7 @@ import logging
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 
-# setup database
+# Setup database
 db = SQLAlchemy()
 
 
@@ -16,6 +16,6 @@ def enable_cors(app):
     CORS(app, resources={'*': {'origins': '*'}})
 
 
-# setup logging
+# Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

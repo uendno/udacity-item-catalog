@@ -9,20 +9,20 @@ from app.controllers.auth import auth_controller
 app = Flask(__name__)
 app.config.from_object('app.config')
 
-# setup db
+# Setup db
 db.init_app(app)
 
-# setup CORS
+# Setup CORS
 enable_cors(app)
 
-# setup controllers
+# Setup controllers
 app.register_blueprint(category_controller)
 app.register_blueprint(item_controller)
 app.register_blueprint(auth_controller)
 app.register_blueprint(errors_controller)
 
 
-# general errors handling
+# General errors handling
 @app.errorhandler(404)
 def page_not_found(e):
     response = {
