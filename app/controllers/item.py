@@ -65,7 +65,7 @@ def update_item(item_id, user_info):
 
     data = request.get_json()
 
-    # validate json
+    # Validate json
     schema = ItemSchema(dump_only=('slug',))
     errors = schema.validate(data)
     if len(errors) > 0:
@@ -115,7 +115,7 @@ def create_item(user_info):
 
     data = request.get_json()
 
-    # validate json
+    # Validate json
     schema = ItemSchema(dump_only=('slug',))
     errors = schema.validate(data)
     if len(errors) > 0:
