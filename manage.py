@@ -10,6 +10,7 @@ manager = Manager(app)
 @manager.command
 def init_db():
     db.create_all()
+    return db
 
 
 # seed categories

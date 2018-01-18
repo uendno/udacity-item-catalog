@@ -9,3 +9,5 @@ flask_cors
 jsonschema
 slugify
 marshmallow
+
+git+https://github.com/behave/behave

@@ -22,7 +22,7 @@ class ItemModel(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     user = db.relationship(UserModel, backref=db.backref('items', lazy=True))
 
-    __table_args__ = (db.UniqueConstraint('category_id', 'slug', name='category_slug_1'),)
+    __table_args__ = (db.UniqueConstraint('slug', name='slug_unique_1'),)
 
     @staticmethod
     def find(item_id):
