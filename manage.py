@@ -1,6 +1,6 @@
 from flask_script import Manager
 from app import app, db
-from app.models import Category
+from app.models import CategoryModel
 from slugify import slugify
 
 manager = Manager(app)
@@ -17,7 +17,7 @@ def init_db():
 def seed_categories():
     categories_names = ['Soccer', 'Basketball', 'Baseball', 'Frisbee', 'Snowboarding', 'Rock Climbing', 'Foosball',
                         'Skating', 'Hockey']
-    categories = map(lambda name: Category(name=name, slug=slugify(name)), categories_names)
+    categories = map(lambda name: CategoryModel(name=name, slug=slugify(name)), categories_names)
     db.session.bulk_save_objects(categories)
     db.session.commit()
 

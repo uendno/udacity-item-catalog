@@ -13,4 +13,4 @@ class ItemSchema(Schema):
     slug = fields.Str(required=True)
     description = fields.Str(required=True)
     category = fields.Nested(ItemCategorySchema)
-    user_id = fields.Int(dump_to='userId', load_from='userId')
+    user_id = fields.Int()

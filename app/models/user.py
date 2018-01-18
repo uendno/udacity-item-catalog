@@ -1,7 +1,7 @@
 from app import db
 
 
-class User(db.Model):
+class UserModel(db.Model):
     """
     User model
     """
@@ -12,11 +12,11 @@ class User(db.Model):
     username = db.Column(db.String(80), nullable=False)
 
     @staticmethod
-    def find_by_id(user_id):
+    def find(user_id):
         """
         Find an user by id
         :param user_id:
         :return:
         """
 
-        return db.session.query(User).filter_by(id=user_id).one_or_none()
+        return db.session.query(UserModel).filter_by(id=user_id).one_or_none()

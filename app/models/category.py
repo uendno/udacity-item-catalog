@@ -3,7 +3,7 @@ import datetime
 from app import db
 
 
-class Category(db.Model):
+class CategoryModel(db.Model):
     """
     Category model
     """
@@ -17,23 +17,19 @@ class Category(db.Model):
 
     @staticmethod
     def get_all_categories():
-        return db.session.query(Category).with_entities(Category.id, Category.name, Category.slug).all()
+        return db.session.query(CategoryModel).with_entities(CategoryModel.id, CategoryModel.name,
+                                                             CategoryModel.slug).all()
 
     @staticmethod
-    def find_by_id(category_id):
+    def find(category_id=None, slug=None):
         """
         Find category by id
         :param category_id:
-        :return:
-        """
-        return db.session.query(Category).filter_by(id=category_id).one_or_none()
-
-    @staticmethod
-    def find_by_slug(slug):
-        """
-        Find a category by its slug
         :param slug:
         :return:
         """
-        return db.session.query(Category).filter_by(
-            slug=slug).one_or_none()
+
+        if category_id is not None:
+            return db.session.query(CategoryModel).filter_by(id=category_id).one_or_none()
+        else:
+            return db.session.query(CategoryModel).filter_by(slug=slug).one_or_none()

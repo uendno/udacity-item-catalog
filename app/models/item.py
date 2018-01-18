@@ -1,11 +1,11 @@
 import datetime
 
 from app import db
-from .category import Category
-from .user import User
+from .category import CategoryModel
+from .user import UserModel
 
 
-class Item(db.Model):
+class ItemModel(db.Model):
     """
     Item model
     """
@@ -16,23 +16,23 @@ class Item(db.Model):
     name = db.Column(db.String(80), nullable=False)
     description = db.Column(db.TEXT)
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
-    category = db.relationship(Category, backref=db.backref('items', lazy=True))
+    category = db.relationship(CategoryModel, backref=db.backref('items', lazy=True))
     created_date = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     slug = db.Column(db.String(80))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    user = db.relationship(User, backref=db.backref('items', lazy=True))
+    user = db.relationship(UserModel, backref=db.backref('items', lazy=True))
 
     __table_args__ = (db.UniqueConstraint('category_id', 'slug', name='category_slug_1'),)
 
     @staticmethod
-    def find_by_id(item_id):
+    def find(item_id):
         """
         Find an item by its id
         :param item_id: item id
         :return: an Item or None
         """
 
-        return db.session.query(Item).filter_by(id=item_id).one_or_none()
+        return db.session.query(ItemModel).filter_by(id=item_id).one_or_none()
 
     @staticmethod
     def get_user_item(item_id, user_id):
@@ -43,7 +43,7 @@ class Item(db.Model):
         :return: an Item or None
         """
 
-        return db.session.query(Item).filter_by(id=item_id, user_id=user_id).one_or_none()
+        return db.session.query(ItemModel).filter_by(id=item_id, user_id=user_id).one_or_none()
 
     @staticmethod
     def validate_slug(slug):
@@ -53,7 +53,7 @@ class Item(db.Model):
         :return: True if valid and False if invalid
         """
 
-        item = db.session.query(Item) \
+        item = db.session.query(ItemModel) \
             .filter_by(slug=slug).one_or_none()
 
         if item is not None:
@@ -63,8 +63,8 @@ class Item(db.Model):
 
     @staticmethod
     def get_last_n_items(n=10):
-        return db.session.query(Item).order_by(Item.created_date.desc()).limit(n).all()
+        return db.session.query(ItemModel).order_by(ItemModel.created_date.desc()).limit(n).all()
 
     @staticmethod
     def get_all_items():
-        return db.session.query(Item).all()
+        return db.session.query(ItemModel).all()

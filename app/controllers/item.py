@@ -3,9 +3,9 @@ from slugify import slugify
 from flask import Blueprint, jsonify, request
 
 from app import db
-from app.models import Item, Category
+from app.models import ItemModel, CategoryModel
 from app.models.errors import ValidationError
-from helpers.decorators import auth_enabled
+from app.helpers.decorators import auth_enabled
 from app.helpers.response import send_success
 from app.schemas import ItemSchema
 
@@ -20,7 +20,7 @@ def get_item(item_id):
     :return:
     """
 
-    item = Item.find_by_id(item_id)
+    item = ItemModel.find(item_id)
 
     if item is None:
         raise ValidationError('Item not found!')
@@ -42,9 +42,9 @@ def get_items():
     limit = request.args.get('limit')
 
     if mode == 'latest':
-        items = Item.get_last_n_items(limit)
+        items = ItemModel.get_last_n_items(limit)
     else:
-        items = Item.get_all_items()
+        items = ItemModel.get_all_items()
 
     items_schema = ItemSchema(many=True, load_only=('user_id', 'description',))
     result = items_schema.dump(items)
@@ -72,20 +72,20 @@ def update_item(item_id, user_info):
         raise ValidationError('Post data error', errors)
 
     # Validate item id
-    item = Item.get_user_item(item_id, user_info.get('id'))
+    item = ItemModel.get_user_item(item_id, user_info.get('id'))
     if item is None:
         raise ValidationError('Item not found!')
 
     # Validate item name
     slug = slugify(data['name'])
     if slug != item.slug:
-        valid = Item.validate_slug(slug)
+        valid = ItemModel.validate_slug(slug)
 
         if not valid:
             raise ValidationError('An item with the same name has already been added. Please try another name.')
 
     # Validate category id
-    category = Category.find_by_id(data['categoryId'])
+    category = CategoryModel.find(category_id=data['categoryId'])
     if category is None:
         raise ValidationError('Invalid category Id')
 
@@ -116,30 +116,25 @@ def create_item(user_info):
     data = request.get_json()
 
     # Validate json
-    schema = ItemSchema(dump_only=('slug',))
+    schema = ItemSchema(dump_only=('slug', 'id'))
     errors = schema.validate(data)
     if len(errors) > 0:
         raise ValidationError('Post data error', errors)
 
-    try:
-        validate(data, schema)
-    except Exception as e:
-        raise ValidationError(e.args[0])
-
     # Validate item name
-    valid = Item.validate_slug(slugify(data['name']))
+    valid = ItemModel.validate_slug(slugify(data['name']))
 
     if not valid:
         raise ValidationError('An item with the same name has already been added. Please try another name.')
 
     # Validate category id
-    category = Category.find_by_id(data['categoryId'])
+    category = CategoryModel.find(category_id=data['categoryId'])
 
     if category is None:
         raise ValidationError('Invalid category Id')
 
-    item = Item(name=data['name'], description=data['description'], category_id=data['categoryId'],
-                user_id=user_info['id'], slug=slugify(data['name']))
+    item = ItemModel(name=data['name'], description=data['description'], category_id=data['categoryId'],
+                     user_id=user_info['id'], slug=slugify(data['name']))
 
     db.session.add(item)
     db.session.commit()
@@ -162,7 +157,7 @@ def delete_item(item_id, user_info):
     """
 
     # Validate item id
-    item = Item.get_user_item(item_id, user_info.get('id'))
+    item = ItemModel.get_user_item(item_id, user_info.get('id'))
 
     if item is None:
         raise ValidationError('Item not found!')

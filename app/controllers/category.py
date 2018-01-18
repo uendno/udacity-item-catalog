@@ -1,6 +1,6 @@
 from flask import Blueprint
 
-from app.models import Category
+from app.models import CategoryModel
 from app.models.errors import ValidationError
 from app.helpers.response import send_success
 from app.schemas import CategorySchema
@@ -15,7 +15,7 @@ def get_categories():
     :return: Response contains list of categories
     """
 
-    categories = Category.get_all_categories()
+    categories = CategoryModel.get_all_categories()
 
     categories_schema = CategorySchema(many=True)
     result = categories_schema.dump(categories)
@@ -31,12 +31,12 @@ def get_category(category_slug):
     :return: Response details for that categories, including its items
     """
 
-    category = Category.find_by_slug(category_slug)
+    category = CategoryModel.find(slug=category_slug)
 
     if category is None:
         raise ValidationError('Category not found!')
 
-    category_schema = CategorySchema(load_only=('items.category', 'items.description', 'items.user_id'))
+    category_schema = CategorySchema(load_only=('items.description', 'items.user_id',))
     result = category_schema.dump(category)
 
     return send_success(result.data)

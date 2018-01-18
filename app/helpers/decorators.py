@@ -25,8 +25,8 @@ def auth_enabled(is_required):
 
             if access_token is not None:
                 try:
-                    decoded = jwt.decode(access_token, config.JWT_SECRET_KEY, algorithms=['HS256'])
-                    kwargs['user_info'] = decoded
+                    user_info = jwt.decode(access_token, config.JWT_SECRET_KEY, algorithms=['HS256'])
+                    kwargs['user_info'] = user_info
                 except Exception:
                     raise UnauthorizedError
 
