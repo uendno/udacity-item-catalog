@@ -36,7 +36,7 @@ def get_category(category_slug):
     if category is None:
         raise ValidationError('Category not found!')
 
-    category_schema = CategorySchema(load_only=('items.description', 'items.user_id',))
+    category_schema = CategorySchema(load_only=('items.category', 'items.description', 'items.user_id',))
     result = category_schema.dump(category)
 
     return send_success(result.data)

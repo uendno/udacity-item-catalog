@@ -85,13 +85,13 @@ def update_item(item_id, user_info):
             raise ValidationError('An item with the same name has already been added. Please try another name.')
 
     # Validate category id
-    category = CategoryModel.find(category_id=data['categoryId'])
+    category = CategoryModel.find(category_id=data['category_id'])
     if category is None:
         raise ValidationError('Invalid category Id')
 
     item.name = data['name']
     item.description = data['description']
-    item.category_id = data['categoryId']
+    item.category_id = data['category_id']
     item.slug = slugify(item.name)
 
     db.session.add(item)
@@ -128,12 +128,12 @@ def create_item(user_info):
         raise ValidationError('An item with the same name has already been added. Please try another name.')
 
     # Validate category id
-    category = CategoryModel.find(category_id=data['categoryId'])
+    category = CategoryModel.find(category_id=data['category_id'])
 
     if category is None:
         raise ValidationError('Invalid category Id')
 
-    item = ItemModel(name=data['name'], description=data['description'], category_id=data['categoryId'],
+    item = ItemModel(name=data['name'], description=data['description'], category_id=data['category_id'],
                      user_id=user_info['id'], slug=slugify(data['name']))
 
     db.session.add(item)
