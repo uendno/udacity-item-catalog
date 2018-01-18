@@ -66,7 +66,7 @@ def update_item(item_id, user_info):
     data = request.get_json()
 
     # Validate json
-    schema = ItemSchema(dump_only=('slug',))
+    schema = ItemSchema(dump_only=('slug', 'id'))
     errors = schema.validate(data)
     if len(errors) > 0:
         raise ValidationError('Post data error', errors)

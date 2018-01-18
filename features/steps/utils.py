@@ -39,3 +39,9 @@ def remove_items(item_ids, client):
         responses.append(response)
 
     return responses
+
+
+def update_item(item_id, data, client):
+    return client.put('/items/%d' % item_id, headers={
+        'Authorization': access_token,
+    }, data=json.dumps(data), content_type='application/json')

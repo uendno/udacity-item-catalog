@@ -2,6 +2,7 @@ import os
 
 from app import app
 from manage import init_db, seed_categories
+from features.steps.utils import get_json, remove_items
 
 DB_URI = 'sqlite:///test.db'
 
@@ -17,3 +18,4 @@ def before_feature(context, feature):
 
 def after_feature(context, feature):
     os.unlink('app/test.db')
+
