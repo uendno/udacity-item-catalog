@@ -39,7 +39,7 @@ HOST: http://localhost:5000
         }
 
 
-## Category [/categories]
+## Categories collection [/categories]
 
 ### Get categories [GET]
 
@@ -47,10 +47,7 @@ HOST: http://localhost:5000
 
     + Attributes
         + data: [] (array, required) - A list of categories.
-            + (object)
-                + id: 1 (number, required) - Category's ID
-                + name: Soccer (string, required) - Category's name
-                + slug: soccer (string, required) - Category's slug
+            + (CategoryBase)
             
     + Body
     
@@ -70,11 +67,13 @@ HOST: http://localhost:5000
                 "success": true
             }
         
-        
-### Category details [GET /cartegories/{slug}]
+       
+## Category [/cartegories/{slug}]    
 
 + Parameters
     + slug (string) - slug of a category
+
+### Category details [GET]
 
 + Response 400 (application/json)
 
@@ -87,21 +86,8 @@ HOST: http://localhost:5000
 
     + Attributes
     
-        + data (object, required) - The category
-            + id: 1 (number, required) - Category's ID
-            + name: Soccer (string, required) - Category's name
-            + slug: soccer (string, required) - Category's slug
-            + items: [] (array, required) - An array of items
-                + (object)
-                    + category (object, required)
-                        + id: 1 (number, required) - Category's ID
-                        + name: Soccer (string, required) - Category's name
-                        + slug: soccer (string, required) - Category's slug
-                    + id: 1 (number, required) - Item's ID
-                    + name: Item 1 (string, required) - Items' name
-                    + slug: item-1 (string, required) - Item's slug
-                    
-
+        + data (CategoryDetails, required) - The category
+            
     + Body
         
             {
@@ -114,7 +100,7 @@ HOST: http://localhost:5000
                 "success": true
             }
         
-## Item [/items]
+## Items collection [/items]
 
 ### Get items [GET /items{?mode}{?limit}]
 
@@ -125,15 +111,8 @@ HOST: http://localhost:5000
 + Response 200 (application/json)
     + Attributes
         + data (array, required) - An array of items
-            + (object)
-                + category (object, required)
-                    + id: 1 (number, required) - Category's ID
-                    + name: Soccer (string, required) - Category's name
-                    + slug: soccer (string, required) - Category's slug
-                + id: 1 (number, required) - Item's ID
-                + name: Item 1 (string, required) - Items' name
-                + slug: item-1 (string, required) - Item's slug
-    
+            + (ItemDetails)
+                
     + Body
     
             {
@@ -161,23 +140,17 @@ HOST: http://localhost:5000
                 ], 
                 "success": true
             }
-
-### Get item details [GET /items/{id}]
+            
+## Item [/items/{id}]
 
 + Parameters
     + id (number) - Id of a item
     
+### Get item details [GET /items/{id}]
+
+
 + Attributes
-    + data (object, required) - The item
-        + category (object, required)
-            + id: 1 (number, required) - Category's ID
-            + name: Soccer (string, required) - Category's name
-            + slug: soccer (string, required) - Category's slug
-        + id: 1 (number, required) - Item's ID
-        + name: Item 1 (string, required) - Items' name
-        + slug: item-1 (string, required) - Item's slug
-        + description: Item 1 description (string, required) - Item's description
-        + userId: 1 (number, required) - ID of item's owner
+    + data (ItemDetails, required) - The item
         
 + Response 200 (application/json)
 
@@ -212,18 +185,14 @@ HOST: http://localhost:5000
             Authorization: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJncGx1c19pZCI6IjEwMTI2NDE4NzUwNDUzNzczODg5MCIsImlkIjoxLCJ0eXBlIjoiZ29vZ2xlIn0.86xF-1BR6iKhhXLRJjkMp02yzC5mOCX9U8pNDrj2DoU
         
         
-    + Attributes
-        
-        + name (string, required) - Item's name
-        + description (string, required) - Item's description
-        + category_id (number, required) - Id of a category which this item belongs to. Must be an valid ID
+    + Attributes (ItemPostData)
         
     + Body
         
             {
                 "name": "item 5",
                 "description": "item 5 desc",
-                "category_id": 1
+                "categoryId": 1
             }
     
             
@@ -235,16 +204,8 @@ HOST: http://localhost:5000
         }
 + Response 200 (application/json)
     + Attributes
-        + data (object, required) - Added item
-            + category (object, required)
-                + id: 1 (number, required) - Category's ID
-                + name: Soccer (string, required) - Category's name
-                + slug: soccer (string, required) - Category's slug
-            + id: 1 (number, required) - Item's ID
-            + name: Item 1 (string, required) - Items' name
-            + slug: item-1 (string, required) - Item's slug
-            + description: Item 1 description (string, required) - Item's description
-            + userId: 1 (number, required) - ID of item's owner
+        + data (ItemDetails, required) - Added item
+            
     
     + Body
 
@@ -274,13 +235,17 @@ HOST: http://localhost:5000
     
             Authorization: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJncGx1c19pZCI6IjEwMTI2NDE4NzUwNDUzNzczODg5MCIsImlkIjoxLCJ0eXBlIjoiZ29vZ2xlIn0.86xF-1BR6iKhhXLRJjkMp02yzC5mOCX9U8pNDrj2DoU
         
+        
+    
+    + Attributes (ItemPostData)
+      
     + Body
         
             {
                 "id": 4,
                 "name": "item 6",
                 "description": "item 5 desc",
-                "category_id": 1
+                "categoryId": 1
             }
     
             
@@ -293,16 +258,7 @@ HOST: http://localhost:5000
 + Response 200 (application/json)
 
     + Attributes
-        + data (object, required) - Added item
-            + category (object, required)
-                + id: 1 (number, required) - Category's ID
-                + name: Soccer (string, required) - Category's name
-                + slug: soccer (string, required) - Category's slug
-            + id: 1 (number, required) - Item's ID
-            + name: Item 1 (string, required) - Items' name
-            + slug: item-1 (string, required) - Item's slug
-            + description: Item 1 description (string, required) - Item's description
-            + userId: 1 (number, required) - ID of item's owner
+        + data (ItemDetails, required) - Added item
     
     + Body
         
@@ -344,3 +300,33 @@ HOST: http://localhost:5000
         {
             "success": true
         }
+
+
+# Data Structures
+
+## ItemBase (object)
++ name: Item 1 (string, required) - Items' name
+
+## ItemPostData (ItemBase)
++ description: Item 1 desc (string, required) - Item's description
++ categoryId: 1 (number, required) - ID of category which contains this item
+
+## ItemInCategory (ItemBase)
++ id: 1 (number, required) - Item's ID
++ slug: item-1 (string, required) - Item's slug
+
+## ItemDetails (ItemBase)
++ id: 1 (number, required) - Item's ID
++ slug: item-1 (string, required) - Item's slug
++ description: Item 1 desc (string, required) - Item's description
++ userId: 1 (number, required) - ID of the user who creates this item
++ category (CategoryBase)
+
+## CategoryBase (object)
++ id: 1 (number, required) - Category's ID
++ name: Soccer (string, required) - Category's name
++ slug: soccer (string, required) - Category's slug
+
+## CategoryDetails (CategoryBase)
++ items (array, required) - An array of items
+    + (ItemInCategory)
