@@ -15,7 +15,7 @@ def handle_error(error):
     :return:
     """
 
-    logger.error(error)
+    logger.warn(error)
 
     if len(error.args) > 0:
         message = error.args[0]

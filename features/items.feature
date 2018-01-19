@@ -16,7 +16,6 @@ Feature: Items
     Given DB has 1 item which has id = 1
     When sending a GET request to /items/1
     Then receive details for the right item
-    Then remove all items
 
   Scenario: Get details for an unknown item
     Given DB does not have any item which has id = 123
@@ -32,7 +31,6 @@ Feature: Items
     Given DB has an item which has the name Item 1 and category_id=1
     When sending a POST request to /items to add an item with the name Item 1
     Then receive 400 status code
-    Then remove all items
 
   Scenario: Update an item with valid category_id
     Given DB has an item which has the name Item 1 and category_id=1
