@@ -163,18 +163,3 @@ def step_impl(context):
 @given('DB dose not an item which has id=1')
 def step_impl(context):
     pass
-
-
-@then('remove all items')
-def step_impl(context):
-    # Remove all items
-
-    response = context.client.get('/items')
-    json = get_json(response)
-
-    ids = [item['id'] for item in json['data']]
-
-    responses = remove_items(ids, client=context.client)
-
-    for response in responses:
-        assert response.status_code == 200
